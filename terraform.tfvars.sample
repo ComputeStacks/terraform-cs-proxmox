@@ -1,0 +1,135 @@
+##
+# Proxmox Connection Settings
+proxmox_api_url = "proxmox.local:8006"
+proxmox_api_token_id = "terraform@pve!cstacks"
+proxmox_api_token_secret = ""
+proxmox_insecure_ssl = false
+
+# Debug Settings
+terraform_proxmox_debug = false
+terraform_proxmox_log_to_file = false
+
+##
+# Proxmox Virtual Machine Settings
+proxmox_cpu_type = "host"
+proxmox_numa = false
+proxmox_onboot = true # Start on host start
+proxmox_image = "debian-11"
+proxmox_full_clone = true
+proxmox_disk_discard = "on"
+proxmox_disk_ssd = 1
+
+proxmox_net_bridge = "vmbr0"
+proxmox_net_vlan = -1
+
+##
+# Default VM User
+vm_user = "cstacks"
+
+
+##
+# VM SSH Connection Information
+# Generate SSH credentials for terraform
+# `ssh-keygen -q -C "${USER}@cstacks-terraform" -t ed25519 -N '' -f ~/.ssh/cstacks-terraform <<<y >/dev/null 2>&1 && cat ~/.ssh/cstacks-terraform.pub`
+ssh_connection_priv_key_path = "~/.ssh/cstacks-terraform"
+# This is YOUR ssh public key, and should also include the public key from ssh_connection_priv_key.
+ssh_pub_allowed = <<EOF
+ssh-ed25519 your-key user@cstacks-terraform
+EOF
+
+# Controller
+proxmox_controller_host = "proxmox-node-01"
+resources_controller_cpu_cores = 4
+resources_controller_cpu_sockets = 1
+resources_controller_memory = 8192 # MB
+resources_controller_disk = "100G"
+proxmox_controller_network = "ip=dhcp,ip6=auto"
+proxmox_controller_storage_loc = "local-zfs"
+
+# Node
+proxmox_node_qty = 3
+proxmox_node_host = ["proxmox-node-01", "proxmox-node-02", "proxmox-node-03"]
+proxmox_node_network = ["ip=dhcp,ip6=auto","ip=dhcp,ip6=auto","ip=dhcp,ip6=auto"]
+resources_node_cpu_cores = 12
+resources_node_cpu_sockets = 1
+resources_node_memory = 32768 # MB
+resources_node_disk = "300G"
+proxmox_node_storage_loc = ["local-zfs","local-zfs","local-zfs"]
+
+# Metrics
+proxmox_metrics_host = "proxmox-node-01"
+resources_metrics_cpu_cores = 4
+resources_metrics_cpu_sockets = 1
+resources_metrics_memory = 6144 # MB
+resources_metrics_disk = "100G"
+proxmox_metrics_network = "ip=dhcp,ip6=auto"
+proxmox_metrics_storage_loc = "local-zfs"
+
+# Backup
+proxmox_backup_host = "proxmox-node-02"
+resources_backup_cpu_cores = 1
+resources_backup_cpu_sockets = 1
+resources_backup_memory = 1024 # MB
+resources_backup_disk = "500G"
+proxmox_backup_network = "ip=dhcp,ip6=auto"
+proxmox_backup_storage_loc = "local-zfs"
+
+# Nameserver Primary
+override_pdns_endpoint = true
+proxmox_ns_primary_host = "proxmox-node-02"
+resources_ns_primary_cpu_cores = 1
+resources_ns_primary_cpu_sockets = 1
+resources_ns_primary_memory = 1024 # MB
+resources_ns_primary_disk = "25G"
+proxmox_ns_primary_network = "ip=dhcp,ip6=auto"
+proxmox_ns_primary_storage_loc = "local-zfs"
+
+# Nameserver Secondary
+proxmox_ns_secondary_host = "proxmox-node-02"
+resources_ns_secondary_cpu_cores = 1
+resources_ns_secondary_cpu_sockets = 1
+resources_ns_secondary_memory = 512 # MB
+resources_ns_secondary_disk = "25G"
+proxmox_ns_secondary_network = "ip=dhcp,ip6=auto"
+proxmox_ns_secondary_storage_loc = "local-zfs"
+
+##
+# ComputeStacks
+
+cs_currency = "USD"
+
+# The region name. Should be lower case, without spaces, and only '-' and '_' characters
+region_name = "default"
+
+##
+# Domains
+zone_name = "my-computestacks-domain.local"
+
+# Each container will receive a unique subdomain from this domain by default.
+# We also need to tell CS what the zone file is in order to provision wildcard SSL for the load balancer.
+cs_app_url = "a.default"
+
+# The domain for the controller
+cs_portal_domain = "portal.default"
+
+# domain for the builtin container registry
+cs_registry_domain = "cr.default"
+
+# Internal URL for metrics.
+# We ask for a domain so that we may generate a LetsEncrypt certificate for it
+cs_metrics_domain = "metrics.default"
+
+# PowerDNS
+primary_nameserver_zone = "my-computestacks-domain.local"
+primary_nameserver_domain = "ns1.default"
+secondary_nameserver_zone = "my-computestacks-domain.local"
+secondary_nameserver_domain = "ns2.default"
+
+##
+# CS User
+cs_admin_email = "admin@cstacks.local"
+
+##
+# Cloudflare - optional, if automatically applying cloudflare zones
+cloudflare_api_token = ""
+cloudflare_account_id = ""

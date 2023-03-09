@@ -1,0 +1,10 @@
+.editorconfig
+*tfstate*
+*lock*
+.terraform
+terraform.tfvars
+providers.tf
+*.log
+dns_*.tf
+result/*
+!result/.gitkeep

@@ -1,0 +1,29 @@
+terraform {
+    required_providers {
+        proxmox = {
+            source = "Telmate/proxmox"
+            version = "2.9.13"
+        }
+        # Uncomment to enable CloudFlare.
+        # Also uncomment `dns_cloudflare.tf` file.
+        # cloudflare = {
+        #     source  = "cloudflare/cloudflare"
+        #     version = "~> 3.0"
+        # }
+    }
+}
+
+provider "proxmox" {
+    pm_api_url = "https://${var.proxmox_api_url}/api2/json"
+    pm_api_token_id = var.proxmox_api_token_id
+    pm_api_token_secret = var.proxmox_api_token_secret
+    pm_tls_insecure = true
+
+    pm_log_enable = var.terraform_proxmox_log_to_file
+    pm_log_file   = var.terraform_proxmox_log_file
+    pm_debug      = var.terraform_proxmox_debug
+    pm_log_levels = {
+        _default    = "debug"
+        _capturelog = ""
+    }
+}

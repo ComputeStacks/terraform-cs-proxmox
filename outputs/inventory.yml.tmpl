@@ -1,0 +1,164 @@
+---
+all:
+  vars:
+    # Path to YOUR ssh key. Used by ansible to connect to servers
+    ansible_ssh_private_key_file: ${ssh_priv_key}
+
+    # Installs the ComputeStacks Support SSH Key, and adds our support ip to the firewall.
+    install_cs_support_key: true
+
+    region_name: ${region_name} # The region name. Should be lower case, without spaces, and only '-' and '_' characters
+    availability_zone_name: "{{ region_name }}-a"
+
+    backups_key: "${backup_key}" # Example: `openssl rand -base64 32`
+
+    ##
+    # Bug Reporting
+    #
+    # 1) Uncomment and leave blank to disable bug reporting completely.
+    # 2) Leave commented out to report bugs to ComputeStacks.
+    # 3) Uncomment and set to your own Sentry DSN.
+    # sentry_dsn: ""
+
+    ##
+    # Container Network
+
+    # We recommend not going larger than a `/21`. If you need more, you can create additional networks later.
+    calico_network: ${network_range}
+
+    # some unique identifier. should not include spaces, capitals, or special characters.
+    calico_network_name: ${network_name}
+
+    # required when private network performs source/dest filtering
+    calico_network_ipip: false
+
+    ##
+    # Floating IP
+
+    # Configures corosync & pacemaker for automated failover.
+    # Set to true if using linode shared ip.
+    enable_floating_ip: false
+
+    # Even if enable_floating_ip is false, set this to the public IP of your availability zone.
+    # for single-node environments, this can be just the public ip of the node.
+    floating_ip: ${floating_ip}
+    floating_ip_netmask: 32
+
+    # it's important that all nodes have same interface name.
+    # if you mix eth/ens format, automatic failover will not work.
+    # If, however, floating IP is in the same network as the primary ip
+    # on that interface, you may leave the interface field blank and it should
+    # correctly pick the correct interface.
+    floating_ip_interface: "eth0"
+
+    # Optionally use a docker registry mirror
+    docker_registry_mirror: ${docker_registry_mirror}
+
+    ##
+    # CS Controller Settings
+
+    cs_app_url: ${cs_app_url}
+    cs_app_zone: ${zone_name}
+    cs_currency: ${currency}
+    cs_portal_domain: ${cs_portal_domain}
+    cs_registry_domain: ${cs_registry_domain}
+    cs_metrics_domain: ${cs_metrics_domain}
+
+    ##
+    # Create Admin Account
+    cs_admin_email: "${cs_admin_email}"
+    cs_admin_password: "${cs_admin_password}"
+
+    ##
+    # Management SSL Certificates
+    # Controller, Registry, and Metrics will all receive ZeroSSL certificates during installation. By default, this will be done through HTTP validation.
+    #
+    # acme_challenge_method: 'http'
+    #
+    # To use DNS validation, see `ACME_VALIDATIONS.md`.
+%{ if acme_cf_token != "" }
+    acme_challenge_method: "cloudflare"
+    acme_cf_token: "${acme_cf_token}"
+    acme_cf_account: "${acme_cf_account}"
+%{ endif }
+
+    ##
+    # Additional Management Ips
+    # Add any additional IP Addresses that you want to have full access
+    # to these servers. You can enter either single address, or ranges like: 192.168.10.0/24.
+    #
+    # Example:
+    # extra_allowed_ipv4_addresses:
+    #   - "192.168.10.32"
+    #   - "192.168.10.33"
+    # extra_allowed_ipv6_addresses:
+    #   - "2600:3c01::f03c:92ff:feaa:fc7e"
+  children:
+    backup_server:
+      hosts:
+        ${backup_public}:
+          node_ip: ${backup_private} # backup ip used by nodes
+          controller_ip: ${backup_private} # backup ip used by controller
+          metrics_ip_address: ${backup_private} # The ip used by prom to connect for stats.
+          enable_ipv6: true
+          ssh_port: 22
+    controller:
+      hosts:
+        ${controller_public}:
+          postgres_cs_password: "${pg_pass}"
+          node_ip: ${controller_private} # The ip used to connect to nodes. (used by docker_iptables)
+          metrics_ip_address: ${controller_private} # The ip used by prom to connect for stats.
+          enable_ipv6: true
+          ssh_port: 22
+%{ if override_pdns_endpoint }
+          pdns_endpoint: "http://${nsone_public}:8081/api/v1/servers"
+%{ endif }
+    primary_nameserver:
+      # Even if you're not using powerdns, you MUST still include the empty `hosts:` section
+      hosts:
+        ${nsone_public}:
+          pdns_name: "${primary_nameserver_domain}"
+          enable_ipv6: true
+          ssh_port: 22
+
+          # The ip used for internal postgres replication.
+          # This may often times be separate than the primary public ip
+          postgres_ip: ${nsone_public}
+    follower_nameservers:
+        # Even if you're not using powerdns, you MUST still include the empty `hosts:` section
+        # We only support 1 follower
+        hosts:
+          ${nstwo_public}:
+            pdns_name: "${secondary_nameserver_domain}"
+            enable_ipv6: true
+            ssh_port: 22
+            postgres_ip: ${nstwo_public}
+    metrics:
+      hosts:
+        ${metrics_public}:
+          loki_password: "${loki_pass}" # pwgen -s 32 1
+          prometheus_password: "${prom_pass}" # pwgen -s 32 1
+          controller_endpoint: ${metrics_private} # The ip/hostname used by the controller to connect
+          node_endpoint: ${metrics_private} # The ip/hostname used by nodes to connect
+          enable_ipv6: true
+          ssh_port: 22
+    nodes:
+      hosts:
+%{ for index, public_ip in nodes_public ~}
+        ${ public_ip }:
+          backup_ip: ${ nodes_private[index] } # node ip used by backup server
+          consul_bootstrap: %{ if index == 0 }true%{ else }false%{ endif } # set false on all other nodes.
+          consul_listen_ip: ${ nodes_private[index] } # used by both controller and agent.
+          metrics_ip_address: ${ nodes_private[index] } # The ip used by prom to connect for stats.
+          etcd_listen_ip: ${ nodes_private[index] } # shared with corosync
+          ssh_port: 22
+
+          # Currently not supported on container nodes. Contact us for info on how to bring ipv6 to your cluster.
+          enable_ipv6: false
+%{ endfor ~}
+    registry:
+      hosts:
+        ${ registry_public }:
+          controller_ip: ${ registry_private } # IP Addresses used by controller to connect to registry
+          enable_ipv6: true
+          ssh_port: 22
