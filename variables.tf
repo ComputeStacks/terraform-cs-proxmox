@@ -177,7 +177,7 @@ variable "proxmox_node_storage_loc" {
 }
 variable "proxmox_node_network" {
   type = list
-  default = ["ip=dhcp,ip6=auto"]
+  default = ["ip=dhcp"]
   description = "Must be equal to the number of nodes you chose. For example, 3 nodes would require 3 values!"
   validation {
     condition = length(var.proxmox_node_network) > 0

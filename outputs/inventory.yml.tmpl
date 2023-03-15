@@ -10,6 +10,9 @@ all:
     region_name: ${region_name} # The region name. Should be lower case, without spaces, and only '-' and '_' characters
     availability_zone_name: "{{ region_name }}-a"
 
+    ##
+    # Backups
+    # backup_remote_protocol: "ssh" # Default is SSH. Optionally 'nfs', or 'local' if no backup server exists.
     backups_key: "${backup_key}" # Example: `openssl rand -base64 32`
 
     ##

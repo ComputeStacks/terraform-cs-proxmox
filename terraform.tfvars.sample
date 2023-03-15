@@ -49,7 +49,7 @@ proxmox_controller_storage_loc = "local-zfs"
 # Node
 proxmox_node_qty = 3
 proxmox_node_host = ["proxmox-node-01", "proxmox-node-02", "proxmox-node-03"]
-proxmox_node_network = ["ip=dhcp,ip6=auto","ip=dhcp,ip6=auto","ip=dhcp,ip6=auto"]
+proxmox_node_network = ["ip=dhcp","ip=dhcp","ip=dhcp"]
 resources_node_cpu_cores = 12
 resources_node_cpu_sockets = 1
 resources_node_memory = 32768 # MB
