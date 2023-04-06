@@ -103,27 +103,30 @@ region_name = "default"
 
 ##
 # Domains
+
+# Zone names -- used to construct URLs.
+# When used with CloudFlare, these are the zone's we will edit.
 zone_name = "my-computestacks-domain.local"
+primary_nameserver_zone = "my-computestacks-domain.local"
+secondary_nameserver_zone = "my-computestacks-domain.local"
 
 # Each container will receive a unique subdomain from this domain by default.
 # We also need to tell CS what the zone file is in order to provision wildcard SSL for the load balancer.
-cs_app_url = "a.default"
+cs_app_url = "a.default" # DO NOT INCLUDE THE VALUE FROM zone_name, ONLY THE SUBDOMAIN.
 
 # The domain for the controller
-cs_portal_domain = "portal.default"
+cs_portal_domain = "portal.default" # DO NOT INCLUDE THE VALUE FROM zone_name, ONLY THE SUBDOMAIN.
 
 # domain for the builtin container registry
-cs_registry_domain = "cr.default"
+cs_registry_domain = "cr.default" # DO NOT INCLUDE THE VALUE FROM zone_name, ONLY THE SUBDOMAIN.
 
 # Internal URL for metrics.
 # We ask for a domain so that we may generate a LetsEncrypt certificate for it
-cs_metrics_domain = "metrics.default"
+cs_metrics_domain = "metrics.default" # DO NOT INCLUDE THE VALUE FROM zone_name, ONLY THE SUBDOMAIN.
 
 # PowerDNS
-primary_nameserver_zone = "my-computestacks-domain.local"
-primary_nameserver_domain = "ns1.default"
-secondary_nameserver_zone = "my-computestacks-domain.local"
-secondary_nameserver_domain = "ns2.default"
+primary_nameserver_domain = "ns1.default" # DO NOT INCLUDE THE VALUE FROM primary_nameserver_zone, ONLY THE SUBDOMAIN.
+secondary_nameserver_domain = "ns2.default" # DO NOT INCLUDE THE VALUE FROM secondary_nameserver_zone, ONLY THE SUBDOMAIN.
 
 ##
 # CS User
