@@ -54,8 +54,9 @@ all:
     # correctly pick the correct interface.
     floating_ip_interface: "eth0"
 
-    # Optionally use a docker registry mirror
+%{ if docker_registry_mirror != "" }
     docker_registry_mirror: ${docker_registry_mirror}
+%{ endif }
 
     ##
     # CS Controller Settings
