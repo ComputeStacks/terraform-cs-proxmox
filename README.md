@@ -39,14 +39,14 @@ Are you using a self-signed certificate for proxmox? If yes, also adjust `proxmo
 
 SSH into the proxmox host and run the following commands, while taking care to change the following values to match your environment:
 
-* `Name`: Replace `tmpl-debian-11`.
+* `Name`: Replace `tmpl-debian-12`.
 * `ID`: Replace `999`.
 * `Disk Location`: Replace `local-lvm`.
 * `Network Bridge`: Replace `vmbr0`.
 
 ```bash
-wget https://f.cscdn.cc/file/cstackscdn/machine-images/debian-11-computestacks.qcow2
-qm create 999 --name tmpl-debian-11 \
+wget https://f.cscdn.cc/file/cstackscdn/machine-images/debian-12-computestacks.qcow2
+qm create 999 --name tmpl-debian-12 \
               --net0 virtio,bridge=vmbr0 \
               --ostype l26 \
               --cpu host \
@@ -59,7 +59,7 @@ qm create 999 --name tmpl-debian-11 \
 
 Import the disk and convert the virtual machine to a template.
 ```bash
-qm importdisk 999 debian-11-computestacks.qcow2 local-lvm
+qm importdisk 999 debian-12-computestacks.qcow2 local-lvm
 qm set 999 --scsihw virtio-scsi-single \
            --scsi0 local-lvm:vm-999-disk-0,discard=on,iothread=1,ssd=1 \
            --ide2 local-lvm:cloudinit

@@ -148,41 +148,18 @@ variable "proxmox_controller_storage_loc" {
 
 ##
 # Node Settings
-variable "proxmox_node_qty" {
-  type = number
-  default = 1
-  description = "Number of nodes to create"
-  validation {
-    condition = var.proxmox_node_qty > 0
-    error_message = "Must be at least 1"
-  }
-}
 variable "proxmox_node_host" {
-  type = list
-  default = ["localhost"]
-  description = "Must be equal to the number of nodes you chose. For example, 3 nodes would require 3 values!"
-  validation {
-    condition = length(var.proxmox_node_host) > 0
-    error_message = "You must supply at least 1 proxmox_node_host."
-  }
+  type = string
+  default = "localhost"
 }
 variable "proxmox_node_storage_loc" {
-  type = list
-  default = ["local-lvm"]
+  type = string
+  default = "local-lvm"
   description = "Name of storage location in proxmox, such as local-zfs, local-lvm, mynas, etc."
-  validation {
-    condition = length(var.proxmox_node_storage_loc) > 0
-    error_message = "You must supply at least 1 proxmox_node_storage_loc."
-  }
 }
 variable "proxmox_node_network" {
-  type = list
-  default = ["ip=dhcp"]
-  description = "Must be equal to the number of nodes you chose. For example, 3 nodes would require 3 values!"
-  validation {
-    condition = length(var.proxmox_node_network) > 0
-    error_message = "You must supply at least 1 proxmox_node_network."
-  }
+  type = string
+  default = "ip=dhcp"
 }
 variable "proxmox_node_tags" {
   type = string

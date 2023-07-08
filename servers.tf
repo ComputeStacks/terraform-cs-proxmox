@@ -42,12 +42,11 @@ resource "proxmox_vm_qemu" "controller" {
 
 }
 
-resource "proxmox_vm_qemu" "node_cluster" {
-  count = var.proxmox_node_qty
-  name = format("node%s%s", var.node_base_name, count.index + 1)
-  desc = format("ComputeStacks Node%s%s", var.node_base_name, count.index + 1)
+resource "proxmox_vm_qemu" "node" {
+  name = "node100"
+  desc = "ComputeStacks node 100"
   tags = var.proxmox_node_tags
-  target_node = var.proxmox_node_host[count.index]
+  target_node = var.proxmox_node_host
   onboot = var.proxmox_onboot
   qemu_os = "l26"
   oncreate = true
@@ -66,7 +65,7 @@ resource "proxmox_vm_qemu" "node_cluster" {
 
   disk {
     type = "scsi"
-    storage = var.proxmox_node_storage_loc[count.index]
+    storage = var.proxmox_node_storage_loc
     size = var.resources_node_disk
     discard = var.proxmox_disk_discard
   }
@@ -80,25 +79,10 @@ resource "proxmox_vm_qemu" "node_cluster" {
   os_type = "cloud-init"
   ciuser = var.vm_user
   cipassword = random_string.server_password.result
-  ipconfig0 = var.proxmox_node_network[count.index]
+  ipconfig0 = var.proxmox_node_network
 
   ssh_user = var.vm_user
   sshkeys = var.ssh_pub_allowed
-
-  lifecycle {
-    precondition {
-      condition = length(var.proxmox_node_host) == var.proxmox_node_qty
-      error_message = "The number of proxmox_node_host must be equal to the number of proxmox_node_qty."
-    }
-    precondition {
-      condition = length(var.proxmox_node_network) == var.proxmox_node_qty
-      error_message = "The number of proxmox_node_network must be equal to the number of proxmox_node_qty."
-    }
-    precondition {
-      condition = length(var.proxmox_node_storage_loc) == var.proxmox_node_qty
-      error_message = "The number of proxmox_node_storage_loc must be equal to the number of proxmox_node_qty."
-    }
-  }
 
 }
 

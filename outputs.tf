@@ -1,11 +1,10 @@
 resource "local_file" "inventory" {
   content = templatefile("outputs/inventory.yml.tmpl", {
     ssh_priv_key = var.ssh_connection_priv_key_path,
-    nodes = proxmox_vm_qemu.node_cluster,
+    node_public = proxmox_vm_qemu.node.default_ipv4_address,
+    node_private = proxmox_vm_qemu.node.default_ipv4_address,
     registry_public = proxmox_vm_qemu.controller.default_ipv4_address,
     registry_private = proxmox_vm_qemu.controller.default_ipv4_address,
-    nodes_public = proxmox_vm_qemu.node_cluster.*.default_ipv4_address,
-    nodes_private = proxmox_vm_qemu.node_cluster.*.default_ipv4_address,
     metrics_public = proxmox_vm_qemu.metrics.default_ipv4_address,
     metrics_private = proxmox_vm_qemu.metrics.default_ipv4_address,
     controller_public = proxmox_vm_qemu.controller.default_ipv4_address,
@@ -17,7 +16,6 @@ resource "local_file" "inventory" {
     prom_pass = random_string.prometheus_password.result,
     backup_key = random_string.backup_key.result,
     app_id = random_string.app_id.result,
-    network_name = lower(random_string.network_name.result),
     network_range = var.cs_network_range,
     region_name = var.region_name,
     currency = var.cs_currency,
@@ -32,7 +30,6 @@ resource "local_file" "inventory" {
     nstwo_public = proxmox_vm_qemu.ns_secondary.default_ipv4_address,
     primary_nameserver_domain = format("%s.%s", var.primary_nameserver_domain, var.primary_nameserver_zone),
     secondary_nameserver_domain = format("%s.%s", var.secondary_nameserver_domain, var.secondary_nameserver_zone),
-    floating_ip = proxmox_vm_qemu.node_cluster.0.default_ipv4_address,
     acme_cf_token = var.cloudflare_api_token,
     acme_cf_account = var.cloudflare_account_id,
     docker_registry_mirror = var.docker_registry_mirror,
@@ -47,7 +44,6 @@ resource "local_file" "dns_settings" {
     cs_portal_domain = format("%s.%s", var.cs_portal_domain, var.zone_name),
     cs_registry_domain = format("%s.%s", var.cs_registry_domain, var.zone_name),
     cs_metrics_domain = format("%s.%s", var.cs_metrics_domain, var.zone_name),
-    nodes_public = proxmox_vm_qemu.node_cluster.*.default_ipv4_address,
     controller_public = proxmox_vm_qemu.controller.default_ipv4_address,
     metrics_public = proxmox_vm_qemu.metrics.default_ipv4_address,
     registry_public = proxmox_vm_qemu.controller.default_ipv4_address,
@@ -55,7 +51,7 @@ resource "local_file" "dns_settings" {
     nstwo_public = proxmox_vm_qemu.ns_secondary.default_ipv4_address,
     primary_nameserver_domain = format("%s.%s", var.primary_nameserver_domain, var.primary_nameserver_zone),
     secondary_nameserver_domain = format("%s.%s", var.secondary_nameserver_domain, var.secondary_nameserver_zone),
-    floating_ip = proxmox_vm_qemu.node_cluster.0.default_ipv4_address
+    node_public = proxmox_vm_qemu.node.default_ipv4_address
   })
   filename = "result/dns_settings.txt"
 }
